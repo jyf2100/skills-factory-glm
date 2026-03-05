@@ -15,9 +15,11 @@
  *   -v, --version       Show version
  */
 
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { readLockfile, findSkills, listSkills, addSkill, writeLockfile } from './lockfile.js';
 import { parseGitHubSource, downloadSkill } from './github.js';
-import { auditSkill } from './security.js';
+import { auditSkill, computeFileHash } from './security.js';
 
 interface CliArgs {
   command: string;
@@ -119,6 +121,113 @@ async function handleSearch(keyword: string): Promise<void> {
   }
 }
 
+async function handleInstall(sourceArg: string): Promise<void> {
+  console.log(`Installing from: ${sourceArg}...\n`);
+
+  const source = parseGitHubSource(sourceArg);
+  const skillsDir = path.join(process.cwd(), 'skills');
+
+  // Download skill
+  console.log('Downloading skill files...');
+  const result = await downloadSkill(source, skillsDir);
+
+  if (result.files.length === 0) {
+    console.error('Error: No files downloaded from repository');
+    process.exit(1);
+  }
+
+  console.log(`Downloaded ${result.files.length} files to skills/${result.skillName}\n`);
+
+  // Run security audit
+  console.log('Running security audit...\n');
+  const skillDir = path.join(skillsDir, result.skillName);
+  const auditResult = await auditSkill(skillDir);
+
+  // Display audit results
+  if (auditResult.warnings.length > 0) {
+    console.log('Warnings:');
+    for (const warning of auditResult.warnings) {
+      console.log(`  ⚠ ${warning}`);
+    }
+    console.log();
+  }
+  if (auditResult.issues.length > 0) {
+    console.log('Security Issues:');
+    for (const issue of auditResult.issues) {
+      console.log(`  [${issue.severity}] ${issue.message}`);
+    }
+    console.log();
+  }
+
+  if (!auditResult.passed) {
+    console.error('Security audit failed');
+    for (const error of auditResult.errors) {
+      console.error(`  ${error}`);
+    }
+    process.exit(1);
+  }
+
+  console.log('✓ Security audit passed\n');
+
+  // Add to lockfile
+  const lockfile = await readLockfile(process.cwd());
+  const computedHash = await computeFileHash(skillDir);
+
+  const updatedLockfile = addSkill(lockfile, result.skillName, {
+    source: `${source.owner}/${source.repo}`,
+    sourceType: 'github',
+    computedHash,
+  });
+
+  await writeLockfile(process.cwd(), updatedLockfile);
+  console.log('✓ Updated skills-lock.json\n');
+
+  // Sync to .agents/skills directory
+  const agentsDir = path.join(process.cwd(), '.agents', 'skills', result.skillName);
+  fs.rmSync(agentsDir, { recursive: true, force: true });
+  fs.cpSync(skillDir, agentsDir, { recursive: true });
+  console.log('✓ Synced to .agents/skills/\n');
+
+  console.log(`Installation complete: ${result.skillName}`);
+}
+
+async function handleAudit(skillName: string): Promise<void> {
+  const skillDir = path.join(process.cwd(), 'skills', skillName);
+
+  if (!fs.existsSync(skillDir)) {
+    console.error(`Error: Skill "${skillName}" not found`);
+    process.exit(1);
+  }
+
+  console.log(`Auditing skill: ${skillName}...\n`);
+  const result = await auditSkill(skillDir);
+
+  if (result.passed) {
+    console.log(`✓ Audit passed for skill: ${skillName}\n`);
+  } else {
+    console.error(`✗ Audit failed for skill: ${skillName}\n`);
+    for (const error of result.errors) {
+      console.error(`  ${error}`);
+    }
+    process.exit(1);
+  }
+
+  if (result.warnings.length > 0) {
+    console.log('Warnings:');
+    for (const warning of result.warnings) {
+      console.log(`  ⚠ ${warning}`);
+    }
+    console.log();
+  }
+  if (result.issues.length > 0) {
+    console.log('Security Issues:');
+    for (const issue of result.issues) {
+      console.log(`  [${issue.severity}] ${issue.message}`);
+    }
+    console.log();
+  }
+}
+
 export async function cli(): Promise<void> {
   const { command, args, flags } = parseArgs(process.argv.slice(2));
 
@@ -158,8 +267,7 @@ export async function cli(): Promise<void> {
           console.error('Usage: npx skills-factory install <owner/repo>');
           process.exit(1);
         }
-        console.log(`Installing from: ${args[0]}`);
-        // TODO: Implement install command
+        await handleInstall(args[0]);
         break;
 
       case 'audit':
@@ -168,8 +276,7 @@ export async function cli(): Promise<void> {
           console.error('Usage: npx skills-factory audit <skill-name>');
           process.exit(1);
         }
-        console.log(`Auditing skill: ${args[0]}`);
-        // TODO: Implement audit command
+        await handleAudit(args[0]);
         break;
 
       default:
