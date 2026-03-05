@@ -5,13 +5,19 @@
  *   npx skills-factory <command> [options]
  *
  * Commands:
- *   search <keyword>    Search for skills
+ *   search <keyword>    Search for skills by name or keyword
  *   install <source>    Install a skill from GitHub (owner/repo)
  *   audit <skill-name>  Audit an installed skill
  *   list                List installed skills
+ *
+ * Options:
+ *   -h, --help          Show this help message
+ *   -v, --version       Show version
  */
 
-import { readLockfile, findSkills, listSkills } from './lockfile.js';
+import { readLockfile, findSkills, listSkills, addSkill, writeLockfile } from './lockfile.js';
+import { parseGitHubSource, downloadSkill } from './github.js';
+import { auditSkill } from './security.js';
 
 interface CliArgs {
   command: string;
@@ -58,9 +64,9 @@ Usage:
 
 Commands:
   search <keyword>    Search for skills by name or keyword
-  install <source>    Install a skill from GitHub (owner/repo format)
-  audit <skill>       Run security audit on a skill
-  list                List all installed skills
+  install <source>    Install a skill from GitHub (owner/repo)
+  audit <skill-name>  Audit an installed skill
+  list                List installed skills
 
 Options:
   -h, --help          Show this help message
