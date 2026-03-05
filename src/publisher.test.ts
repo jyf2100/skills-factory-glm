@@ -1,9 +1,14 @@
 import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import {
   createRepository,
   generateAttestation,
   updateIndex,
+  gitInit,
+  gitAdd,
+  gitCommit,
   type SkillRecord,
   type SkillsIndex,
 } from './publisher.js';
@@ -139,6 +144,83 @@ describe('publisher', () => {
       assert.strictEqual(updated.skills.length, 1);
       assert.strictEqual(updated.skills[0].version, '2.0.0');
       assert.strictEqual(updated.skills[0].description, 'Updated skill');
+    });
+  });
+
+  describe('gitInit', () => {
+    it('should initialize git repo in a directory', async () => {
+      const tmpDir = await import('node:fs/promises').then(fs =>
+        fs.mkdtemp('/tmp/skills-factory-test-')
+      );
+
+      try {
+        const result = await gitInit(tmpDir);
+        assert.strictEqual(result.success, true);
+        assert.ok(result.message);
+      } finally {
+        // Cleanup
+        await import('node:fs/promises').then(fs =>
+          fs.rm(tmpDir, { recursive: true, force: true })
+        );
+      }
+    });
+
+    it('should handle already initialized repo', async () => {
+      const tmpDir = await import('node:fs/promises').then(fs =>
+        fs.mkdtemp('/tmp/skills-factory-test-')
+      );
+
+      try {
+        await gitInit(tmpDir);
+        // Second init should succeed (no-op)
+        const result = await gitInit(tmpDir);
+        assert.strictEqual(result.success, true);
+      } finally {
+        await import('node:fs/promises').then(fs =>
+          fs.rm(tmpDir, { recursive: true, force: true })
+        );
+      }
+    });
+  });
+
+  describe('gitAdd', () => {
+    it('should stage files in repo', async () => {
+      const tmpDir = await import('node:fs/promises').then(fs =>
+        fs.mkdtemp('/tmp/skills-factory-test-')
+      );
+
+      try {
+        await gitInit(tmpDir);
+        // Create a test file
+        const testFile = `${tmpDir}/test.txt`;
+        await import('node:fs/promises').then(fs => fs.writeFile(testFile, 'test'));
+
+        const result = await gitAdd(tmpDir, ['.']);
+        assert.strictEqual(result.success, true);
+      } finally {
+        await import('node:fs/promises').then(fs =>
+          fs.rm(tmpDir, { recursive: true, force: true })
+        );
+      }
+    });
+  });
+
+  describe('gitCommit', () => {
+    it('should commit staged changes', async () => {
+      const fs = await import('node:fs/promises');
+      const tmpDir = await fs.mkdtemp('/tmp/skills-factory-test-');
+
+      try {
+        await gitInit(tmpDir);
+        await fs.writeFile(`${tmpDir}/test.txt`, 'test content');
+        await gitAdd(tmpDir, ['.']);
+
+        const result = await gitCommit(tmpDir, 'Test commit');
+        assert.strictEqual(result.success, true);
+        assert.ok(result.commitHash);
+      } finally {
+        await fs.rm(tmpDir, { recursive: true, force: true });
+      }
     });
   });
 });

@@ -4,7 +4,89 @@
  * Handles publishing skills to the local repository with attestations and signatures
  */
 
+import { spawn } from 'node:child_process';
 import { createAttestation, type SkillAttestation } from './signing.js';
+
+/**
+ * Git operation result
+ */
+export interface GitResult {
+  success: boolean;
+  message: string;
+  commitHash?: string;
+}
+
+/**
+ * Execute a git command
+ */
+function execGit(cwd: string, args: string[]): Promise<GitResult> {
+  return new Promise((resolve) => {
+    const proc = spawn('git', args, { cwd });
+
+    let stdout = '';
+    let stderr = '';
+
+    proc.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    proc.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    proc.on('close', (code) => {
+      if (code === 0) {
+        resolve({ success: true, message: stdout.trim(), commitHash: stdout.trim() });
+      } else {
+        resolve({ success: false, message: stderr.trim() || stdout.trim() });
+      }
+    });
+
+    proc.on('error', (err) => {
+      resolve({ success: false, message: err.message });
+    });
+  });
+}
+
+/**
+ * Initialize a git repository
+ */
+export async function gitInit(repoPath: string): Promise<GitResult> {
+  const result = await execGit(repoPath, ['init']);
+  if (result.success) {
+    return { success: true, message: 'Git repository initialized' };
+  }
+  return result;
+}
+
+/**
+ * Stage files for commit
+ */
+export async function gitAdd(repoPath: string, paths: string[]): Promise<GitResult> {
+  const result = await execGit(repoPath, ['add', ...paths]);
+  if (result.success) {
+    return { success: true, message: 'Files staged' };
+  }
+  return result;
+}
+
+/**
+ * Commit staged changes
+ */
+export async function gitCommit(repoPath: string, message: string): Promise<GitResult> {
+  const result = await execGit(repoPath, ['commit', '-m', message]);
+  if (result.success) {
+    // Extract commit hash from output like "[main (root-commit) 5b7de2c]" or "[main 5b7de2c]"
+    const match = result.message.match(/\[\S+\s+(?:\([^)]+\)\s+)?([a-f0-9]+)/);
+    const commitHash = match ? match[1] : undefined;
+    return { success: true, message: 'Changes committed', commitHash };
+  }
+  // Handle "nothing to commit" case
+  if (result.message.includes('nothing to commit')) {
+    return { success: true, message: 'Nothing to commit' };
+  }
+  return result;
+}
 
 /**
  * Skill record for tracking published skills
