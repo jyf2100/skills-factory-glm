@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { readLockfile, findSkills } from './lockfile.js';
+import { readLockfile, findSkills, listSkills, removeSkill } from './lockfile.js';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 
@@ -26,5 +26,24 @@ describe('lockfile', () => {
     const lockfile = await readLockfile(process.cwd());
     const matches = findSkills(lockfile, 'nonexistent-skill-xyz');
     assert.strictEqual(matches.length, 0);
+  });
+
+  it('should remove skill from lockfile', () => {
+    const lockfile = {
+      version: 1,
+      skills: {
+        'skill-a': { source: 'a/b', sourceType: 'github', computedHash: 'hash-a' },
+        'skill-b': { source: 'c/d', sourceType: 'github', computedHash: 'hash-b' },
+      },
+    };
+    const result = removeSkill(lockfile, 'skill-a');
+    assert.ok(!result.skills['skill-a'], 'skill-a should be removed');
+    assert.ok(result.skills['skill-b'], 'skill-b should remain');
+  });
+
+  it('should list all skills', async () => {
+    const lockfile = await readLockfile(process.cwd());
+    const skills = listSkills(lockfile);
+    assert.ok(skills.length >= 2, 'Should have at least 2 skills');
   });
 });

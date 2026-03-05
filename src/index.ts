@@ -18,7 +18,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
-import { readLockfile, findSkills, listSkills, addSkill, writeLockfile } from './lockfile.js';
+import { readLockfile, findSkills, listSkills, addSkill, writeLockfile, removeSkill } from './lockfile.js';
 import { parseGitHubSource, downloadSkill } from './github.js';
 import { auditSkill, computeFileHash } from './security.js';
 
@@ -68,6 +68,8 @@ Usage:
 Commands:
   search <keyword>    Search for skills by name or keyword
   install <source>    Install a skill from GitHub (owner/repo)
+  update <skill-name> Update a skill to the latest version
+  uninstall <skill>   Remove an installed skill
   audit <skill-name>  Audit an installed skill
   list                List installed skills
 
@@ -78,6 +80,8 @@ Options:
 Examples:
   npx skills-factory search openclaw
   npx skills-factory install owner/repo
+  npx skills-factory update openclaw-config
+  npx skills-factory uninstall openclaw-config
   npx skills-factory audit openclaw-config
   npx skills-factory list
 `);
@@ -235,6 +239,139 @@ async function handleAudit(skillName: string): Promise<void> {
   }
 }
 
+async function handleUninstall(skillName: string): Promise<void> {
+  const skillDir = path.join(process.cwd(), 'skills', skillName);
+  const agentsDir = path.join(process.cwd(), '.agents', 'skills', skillName);
+
+  if (!fs.existsSync(skillDir)) {
+    console.error(`Error: Skill "${skillName}" not found`);
+    process.exit(1);
+  }
+
+  console.log(`Uninstalling skill: ${skillName}...\n`);
+
+  // Remove from lockfile
+  const lockfile = await readLockfile(process.cwd());
+  if (!lockfile.skills[skillName]) {
+    console.error(`Error: Skill "${skillName}" not in lockfile`);
+    process.exit(1);
+  }
+
+  const updatedLockfile = removeSkill(lockfile, skillName);
+  await writeLockfile(process.cwd(), updatedLockfile);
+
+  // Remove directories
+  fs.rmSync(skillDir, { recursive: true, force: true });
+  if (fs.existsSync(agentsDir)) {
+    fs.rmSync(agentsDir, { recursive: true, force: true });
+  }
+
+  // Git commit
+  console.log('Committing changes...');
+  execSync(`git add -A`, { encoding: 'utf-8', stdio: 'pipe' });
+  try {
+    execSync(`git commit -m "chore: uninstall skill ${skillName}"`, { encoding: 'utf-8', stdio: 'pipe' });
+  } catch {
+    // Ignore if nothing to commit
+  }
+
+  console.log(`✓ Uninstalled skill: ${skillName}`);
+}
+
+async function handleUpdate(skillName: string): Promise<void> {
+  const skillDir = path.join(process.cwd(), 'skills', skillName);
+
+  if (!fs.existsSync(skillDir)) {
+    console.error(`Error: Skill "${skillName}" not found`);
+    console.error('Use "install" command to install a new skill.');
+    process.exit(1);
+  }
+
+  const lockfile = await readLockfile(process.cwd());
+  const entry = lockfile.skills[skillName];
+
+  if (!entry) {
+    console.error(`Error: Skill "${skillName}" not in lockfile`);
+    process.exit(1);
+  }
+
+  console.log(`Updating skill: ${skillName}...\n`);
+  console.log(`Source: ${entry.source}\n`);
+
+  // Remove existing skill
+  fs.rmSync(skillDir, { recursive: true, force: true });
+
+  // Re-download
+  const source = parseGitHubSource(entry.source);
+  console.log('Downloading latest version...');
+  const result = await downloadSkill(source, path.join(process.cwd(), 'skills'));
+
+  if (result.files.length === 0) {
+    console.error('Error: No files downloaded from repository');
+    process.exit(1);
+  }
+
+  console.log(`Downloaded ${result.files.length} files\n`);
+
+  // Run security audit
+  console.log('Running security audit...\n');
+  const auditResult = await auditSkill(skillDir);
+
+  if (!auditResult.passed) {
+    console.error('Security audit failed');
+    for (const error of auditResult.errors) {
+      console.error(`  ${error}`);
+    }
+    console.log('\nRollback: skill directory was removed.');
+    process.exit(1);
+  }
+
+  if (auditResult.warnings.length > 0) {
+    console.log('Warnings:');
+    for (const warning of auditResult.warnings) {
+      console.log(`  ⚠ ${warning}`);
+    }
+    console.log();
+  }
+  if (auditResult.issues.length > 0) {
+    console.log('Security Issues:');
+    for (const issue of auditResult.issues) {
+      console.log(`  [${issue.severity}] ${issue.message}`);
+    }
+    console.log();
+  }
+
+  console.log('✓ Security audit passed\n');
+
+  // Update lockfile with new hash
+  const updatedLockfile = addSkill(lockfile, skillName, {
+    source: entry.source,
+    sourceType: entry.sourceType,
+    computedHash: await computeFileHash(skillDir),
+  });
+
+  await writeLockfile(process.cwd(), updatedLockfile);
+  console.log('✓ Updated skills-lock.json\n');
+
+  // Sync to .agents/skills
+  const agentsDir = path.join(process.cwd(), '.agents', 'skills', skillName);
+  fs.rmSync(agentsDir, { recursive: true, force: true });
+  fs.mkdirSync(path.dirname(agentsDir), { recursive: true });
+  fs.cpSync(skillDir, agentsDir, { recursive: true });
+  console.log('✓ Synced to .agents/skills/\n');
+
+  // Git commit
+  console.log('Committing changes...');
+  execSync(`git add -A`, { encoding: 'utf-8', stdio: 'pipe' });
+  try {
+    execSync(`git commit -m "chore: update skill ${skillName}"`, { encoding: 'utf-8', stdio: 'pipe' });
+  } catch {
+    // Ignore if nothing to commit
+  }
+
+  console.log(`✓ Updated skill: ${skillName}`);
+}
+
 export async function cli(): Promise<void> {
   const { command, args, flags } = parseArgs(process.argv.slice(2));
 
@@ -284,6 +421,24 @@ export async function cli(): Promise<void> {
           process.exit(1);
         }
         await handleAudit(args[0]);
+        break;
+
+      case 'uninstall':
+        if (args.length === 0) {
+          console.error('Error: uninstall requires a skill name');
+          console.error('Usage: npx skills-factory uninstall <skill-name>');
+          process.exit(1);
+        }
+        await handleUninstall(args[0]);
+        break;
+
+      case 'update':
+        if (args.length === 0) {
+          console.error('Error: update requires a skill name');
+          console.error('Usage: npx skills-factory update <skill-name>');
+          process.exit(1);
+        }
+        await handleUpdate(args[0]);
         break;
 
       default:
