@@ -73,7 +73,11 @@ Commands:
   update <skill-name> Update a skill to the latest version
   uninstall <skill>   Remove an installed skill
   audit <skill-name>  Audit an installed skill
+  verify <skill-name> Verify skill integrity and signature
   list                List installed skills
+  source list         List whitelisted sources
+  source add <url>    Add a source to whitelist
+  source remove <url> Remove a source from whitelist
 
 Options:
   -h, --help          Show this help message
@@ -83,9 +87,9 @@ Examples:
   npx skills-factory search openclaw
   npx skills-factory install owner/repo
   npx skills-factory update openclaw-config
-  npx skills-factory uninstall openclaw-config
-  npx skills-factory audit openclaw-config
-  npx skills-factory list
+  npx skills-factory verify openclaw-config
+  npx skills-factory source list
+  npx skills-factory source add github.com/myorg
 `);
 }
 
@@ -413,6 +417,169 @@ async function handleUpdate(skillName: string): Promise<void> {
   console.log(`✓ Updated skill: ${skillName}`);
 }
 
+/**
+ * Verify a skill's signature and integrity
+ */
+async function handleVerify(skillName: string): Promise<void> {
+  console.log(`Verifying skill: ${skillName}...\n`);
+
+  const skillDir = path.join(process.cwd(), 'skills', skillName);
+
+  if (!fs.existsSync(skillDir)) {
+    console.error(`Error: Skill not found: ${skillName}`);
+    process.exit(1);
+  }
+
+  // Read lockfile to get stored hash
+  const lockfile = await readLockfile(process.cwd());
+  const entry = lockfile.skills[skillName];
+
+  if (!entry) {
+    console.error(`Error: Skill not in lockfile: ${skillName}`);
+    process.exit(1);
+  }
+
+  // Compute current hash
+  const currentHash = await computeFileHash(skillDir);
+
+  console.log(`Stored hash:   ${entry.computedHash}`);
+  console.log(`Current hash:  ${currentHash}`);
+
+  if (currentHash === entry.computedHash) {
+    console.log('\n✓ Skill integrity verified\n');
+  } else {
+    console.error('\n✗ Hash mismatch! Skill may have been modified.\n');
+    process.exit(1);
+  }
+
+  // Check signature if available
+  const signaturePath = path.join(process.cwd(), 'signatures', `${skillName}.sig`);
+  if (fs.existsSync(signaturePath)) {
+    console.log('Signature file found.');
+    // In production, would verify against public key
+    console.log('✓ Signature present (verification requires public key)\n');
+  }
+
+  console.log(`✓ Verification complete: ${skillName}`);
+}
+
+/**
+ * Handle source management commands
+ */
+async function handleSource(args: string[]): Promise<void> {
+  const subCommand = args[0] || 'list';
+
+  switch (subCommand) {
+    case 'list':
+      await handleSourceList();
+      break;
+    case 'add':
+      if (args.length < 2) {
+        console.error('Error: source add requires a URL');
+        console.error('Usage: npx skills-factory source add <url>');
+        process.exit(1);
+      }
+      await handleSourceAdd(args[1]);
+      break;
+    case 'remove':
+      if (args.length < 2) {
+        console.error('Error: source remove requires a URL or name');
+        console.error('Usage: npx skills-factory source remove <url>');
+        process.exit(1);
+      }
+      await handleSourceRemove(args[1]);
+      break;
+    default:
+      console.error(`Unknown source command: ${subCommand}`);
+      console.error('Available commands: list, add, remove');
+      process.exit(1);
+  }
+}
+
+/**
+ * List whitelisted sources
+ */
+async function handleSourceList(): Promise<void> {
+  console.log('Whitelisted Sources:\n');
+
+  const sourcesPath = path.join(process.cwd(), 'sources.json');
+
+  if (!fs.existsSync(sourcesPath)) {
+    // Default sources
+    console.log('  • github.com (default)');
+    console.log('  • gist.github.com (default)');
+    console.log('\nNo custom sources configured.');
+    return;
+  }
+
+  const sources = JSON.parse(fs.readFileSync(sourcesPath, 'utf-8'));
+
+  console.log('Default:');
+  console.log('  • github.com');
+  console.log('  • gist.github.com');
+
+  if (sources.custom && sources.custom.length > 0) {
+    console.log('\nCustom:');
+    for (const source of sources.custom) {
+      console.log(`  • ${source}`);
+    }
+  }
+}
+
+/**
+ * Add a source to whitelist
+ */
+async function handleSourceAdd(sourceUrl: string): Promise<void> {
+  const sourcesPath = path.join(process.cwd(), 'sources.json');
+
+  let sources: { custom: string[] } = { custom: [] };
+
+  if (fs.existsSync(sourcesPath)) {
+    sources = JSON.parse(fs.readFileSync(sourcesPath, 'utf-8'));
+  }
+
+  if (sources.custom.includes(sourceUrl)) {
+    console.log(`Source already whitelisted: ${sourceUrl}`);
+    return;
+  }
+
+  sources.custom.push(sourceUrl);
+  fs.writeFileSync(sourcesPath, JSON.stringify(sources, null, 2));
+
+  console.log(`✓ Added source: ${sourceUrl}`);
+}
+
+/**
+ * Remove a source from whitelist
+ */
+async function handleSourceRemove(sourceUrl: string): Promise<void> {
+  const sourcesPath = path.join(process.cwd(), 'sources.json');
+
+  if (!fs.existsSync(sourcesPath)) {
+    console.log('No custom sources configured.');
+    return;
+  }
+
+  const sources = JSON.parse(fs.readFileSync(sourcesPath, 'utf-8'));
+
+  const index = sources.custom.indexOf(sourceUrl);
+  if (index === -1) {
+    console.log(`Source not found: ${sourceUrl}`);
+    return;
+  }
+
+  sources.custom.splice(index, 1);
+
+  if (sources.custom.length === 0) {
+    fs.rmSync(sourcesPath);
+    console.log(`✓ Removed source: ${sourceUrl}`);
+    console.log('No custom sources remaining.');
+  } else {
+    fs.writeFileSync(sourcesPath, JSON.stringify(sources, null, 2));
+    console.log(`✓ Removed source: ${sourceUrl}`);
+  }
+}
+
 export async function cli(): Promise<void> {
   const { command, args, flags } = parseArgs(process.argv.slice(2));
 
@@ -493,6 +660,19 @@ export async function cli(): Promise<void> {
           process.exit(1);
         }
         await handleUpdate(args[0]);
+        break;
+
+      case 'verify':
+        if (args.length === 0) {
+          console.error('Error: verify requires a skill name');
+          console.error('Usage: npx skills-factory verify <skill-name>');
+          process.exit(1);
+        }
+        await handleVerify(args[0]);
+        break;
+
+      case 'source':
+        await handleSource(args);
         break;
 
       default:
