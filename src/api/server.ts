@@ -13,6 +13,7 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 import { handleIngestImport, handleIngestStatus, handleIngestList } from './routes/ingest.js';
 import { handleReviewApprove, handleReviewReject, handleReviewStatus } from './routes/reviews.js';
+import { handleInstallSkill } from './routes/install.js';
 
 interface Route {
   method: string;
@@ -30,6 +31,7 @@ const routes: Route[] = [
   { method: 'POST', pattern: /^\/api\/v1\/reviews\/([^/]+)\/approve$/, handler: handleReviewApprove },
   { method: 'POST', pattern: /^\/api\/v1\/reviews\/([^/]+)\/reject$/, handler: handleReviewReject },
   { method: 'GET', pattern: /^\/api\/v1\/reviews\/([^/]+)$/, handler: handleReviewStatus },
+  { method: 'GET', pattern: /^\/api\/v1\/install\/([^/]+)\/([^/]+)$/, handler: handleInstallSkill },
 ];
 
 function parseUrl(req: http.IncomingMessage): { pathname: string; query: URLSearchParams } {
