@@ -61,3 +61,31 @@ skills-factory/
 - 明确描述技能的用途和适用场景
 - 包含关键词以便匹配用户请求
 - 描述触发条件（"Use when..." 或 "使用场景..."）
+
+## CLI Commands
+
+```bash
+# Build TypeScript
+npm run build
+
+# Run tests
+npm test
+
+# Type check
+npm run typecheck
+
+# Run CLI locally
+node dist/bin/skills-factory.js <command>
+
+# Example commands
+npx skills-factory list
+npx skills-factory search openclaw
+npx skills-factory install owner/repo
+npx skills-factory audit <skill-name>
+```
+
+## Development Notes
+
+- 使用 Node.js 内置测试框架（node:test），无需 Jest
+- 安全校验包括敏感信息检测和可疑文件检测
+- 每次安装都会自动 git commit
