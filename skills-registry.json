@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": [
+    {
+      "name": "openclaw-config",
+      "source": "adisinghstudent/easyclaw",
+      "description": "Manage OpenClaw bot configuration - channels, agents, security, and autopilot settings",
+      "keywords": ["openclaw", "config", "bot", "ai"]
+    },
+    {
+      "name": "openclaw-setup",
+      "source": "iofficeai/aionui",
+      "description": "OpenClaw usage expert: Helps you install, deploy, configure, and use OpenClaw personal AI assistant",
+      "keywords": ["openclaw", "setup", "install", "deploy"]
+    }
+  ]
+}

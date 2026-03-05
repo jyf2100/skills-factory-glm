@@ -21,6 +21,7 @@ import { execSync } from 'node:child_process';
 import { readLockfile, findSkills, listSkills, addSkill, writeLockfile, removeSkill } from './lockfile.js';
 import { parseGitHubSource, downloadSkill } from './github.js';
 import { auditSkill, computeFileHash } from './security.js';
+import { readRegistry, searchRegistry, listAllSkills } from './registry.js';
 
 interface CliArgs {
   command: string;
@@ -66,7 +67,8 @@ Usage:
   npx skills-factory <command> [options]
 
 Commands:
-  search <keyword>    Search for skills by name or keyword
+  search <keyword>    Search for skills by name or keyword (local + registry)
+  browse              Browse all skills in the registry
   install <source>    Install a skill from GitHub (owner/repo)
   update <skill-name> Update a skill to the latest version
   uninstall <skill>   Remove an installed skill
@@ -110,18 +112,57 @@ async function handleList(): Promise<void> {
 }
 
 async function handleSearch(keyword: string): Promise<void> {
+  // Search local skills
   const lockfile = await readLockfile(process.cwd());
-  const matches = findSkills(lockfile, keyword);
+  const localMatches = findSkills(lockfile, keyword);
 
-  if (matches.length === 0) {
-    console.log(`No skills found matching "${keyword}".`);
+  // Search remote registry
+  const registry = await readRegistry(process.cwd());
+  const remoteMatches = searchRegistry(registry, keyword);
+
+  // Display local skills
+  if (localMatches.length > 0) {
+    console.log(`Local skills (${localMatches.length}):\n`);
+    for (const skill of localMatches) {
+      console.log(`  ${skill.name} [installed]`);
+    }
+    console.log();
+  } else {
+    console.log('No local skills found.\n');
+  }
+
+  // Display remote skills
+  if (remoteMatches.length > 0) {
+    console.log(`Available in registry (${remoteMatches.length}):\n`);
+    for (const skill of remoteMatches) {
+      const installed = lockfile.skills[skill.name] ? ' [installed]' : '';
+      console.log(`  ${skill.name}${installed}`);
+      console.log(`    ${skill.description.slice(0, 60)}...`);
+      console.log(`    Source: ${skill.source}`);
+      console.log();
+    }
+  } else {
+    console.log('No remote skills found.\n');
+  }
+}
+
+async function handleBrowse(): Promise<void> {
+  const registry = await readRegistry(process.cwd());
+  const lockfile = await readLockfile(process.cwd());
+
+  const allSkills = listAllSkills(registry);
+
+  if (allSkills.length === 0) {
+    console.log('No skills in registry.');
     return;
   }
 
-  console.log(`Found ${matches.length} skill(s) matching "${keyword}":\n`);
-  for (const skill of matches) {
-    console.log(`  ${skill.name}`);
-    console.log(`    Source: ${skill.entry.source}`);
+  console.log(`Skills Registry (${allSkills.length} skills):\n`);
+  for (const skill of allSkills) {
+    const installed = lockfile.skills[skill.name] ? '✓' : '  ';
+    console.log(`${installed} ${skill.name}`);
+    console.log(`    ${skill.description}`);
+    console.log(`    Keywords: ${skill.keywords.join(', ')}`);
     console.log();
   }
 }
@@ -430,6 +471,19 @@ export async function cli(): Promise<void> {
           process.exit(1);
         }
         await handleUninstall(args[0]);
+        break;
+
+      case 'update':
+        if (args.length === 0) {
+          console.error('Error: update requires a skill name');
+          console.error('Usage: npx skills-factory update <skill-name>');
+          process.exit(1);
+        }
+        await handleUpdate(args[0]);
+        break;
+
+      case 'browse':
+        await handleBrowse();
         break;
 
       case 'update':
