@@ -17,6 +17,7 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { execSync } from 'node:child_process';
 import { readLockfile, findSkills, listSkills, addSkill, writeLockfile } from './lockfile.js';
 import { parseGitHubSource, downloadSkill } from './github.js';
 import { auditSkill, computeFileHash } from './security.js';
@@ -187,6 +188,12 @@ async function handleInstall(sourceArg: string): Promise<void> {
   fs.rmSync(agentsDir, { recursive: true, force: true });
   fs.cpSync(skillDir, agentsDir, { recursive: true });
   console.log('✓ Synced to .agents/skills/\n');
+
+  // Git commit
+  console.log('Committing changes...');
+  const { execSync } = require('child_process');
+  execSync(`git add skills/${result.skillName} skills-lock.json .agents/`, { encoding: 'utf-8' });
+  execSync(`git commit -m "feat: install skill ${result.skillName}"`, { encoding: 'utf-8' });
 
   console.log(`Installation complete: ${result.skillName}`);
 }

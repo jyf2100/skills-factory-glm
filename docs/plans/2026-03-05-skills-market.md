@@ -162,13 +162,19 @@ skills-factory/
 
 ---
 
-### Task 6: Git 提交和推送 [预计 5 分钟]
+### Task 6: Git 集成 (可选) [预计 3 分钟]
 
-**Files**：
-- Modify: `src/commands/install.ts`
+用户可能希望推送到远程仓库。 这个功能需要：
+1. 检查是否有远程仓库
+2. 如果有， 执行 push
+3. 如果没有， 跳过并提示用户
 
-**Step 1**：安装后自动 git add + commit
-**Step 2**：验证 git log 有新提交
+**Files**:
+- Modify: `src/index.ts`
+
+**Step 1**: 在 handleInstall 中添加 git 操作
+**Step 2**: 风险: 远程仓库可能不存在或无权限
+**Step 3**: 收益: 自动同步到远程
 
 ---
 
