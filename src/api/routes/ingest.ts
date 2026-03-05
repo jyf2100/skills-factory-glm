@@ -24,7 +24,7 @@ export interface ImportResponse {
 }
 
 // Store for pending imports (in-memory, would be database in production)
-const pendingImports = new Map<string, ImportResponse>();
+export const pendingImports = new Map<string, ImportResponse>();
 
 /**
  * Handle POST /api/v1/ingest/import

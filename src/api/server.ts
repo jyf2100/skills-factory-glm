@@ -12,6 +12,7 @@ import { handleHealthRoute } from './routes/health.js';
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 import { handleIngestImport, handleIngestStatus, handleIngestList } from './routes/ingest.js';
+import { handleReviewApprove, handleReviewReject, handleReviewStatus } from './routes/reviews.js';
 
 interface Route {
   method: string;
@@ -26,6 +27,9 @@ const routes: Route[] = [
   { method: 'POST', pattern: /^\/api\/v1\/ingest\/import$/, handler: handleIngestImport },
   { method: 'GET', pattern: /^\/api\/v1\/ingest\/([^/]+)$/, handler: handleIngestStatus },
   { method: 'GET', pattern: /^\/api\/v1\/ingest$/, handler: handleIngestList },
+  { method: 'POST', pattern: /^\/api\/v1\/reviews\/([^/]+)\/approve$/, handler: handleReviewApprove },
+  { method: 'POST', pattern: /^\/api\/v1\/reviews\/([^/]+)\/reject$/, handler: handleReviewReject },
+  { method: 'GET', pattern: /^\/api\/v1\/reviews\/([^/]+)$/, handler: handleReviewStatus },
 ];
 
 function parseUrl(req: http.IncomingMessage): { pathname: string; query: URLSearchParams } {
