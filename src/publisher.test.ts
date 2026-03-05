@@ -9,6 +9,10 @@ import {
   gitInit,
   gitAdd,
   gitCommit,
+  gitRemoteAdd,
+  gitPush,
+  writeSkillToRepo,
+  readSkillsIndex,
   type SkillRecord,
   type SkillsIndex,
 } from './publisher.js';
@@ -218,6 +222,127 @@ describe('publisher', () => {
         const result = await gitCommit(tmpDir, 'Test commit');
         assert.strictEqual(result.success, true);
         assert.ok(result.commitHash);
+      } finally {
+        await fs.rm(tmpDir, { recursive: true, force: true });
+      }
+    });
+  });
+
+  describe('gitRemoteAdd', () => {
+    it('should add remote to repo', async () => {
+      const fs = await import('node:fs/promises');
+      const tmpDir = await fs.mkdtemp('/tmp/skills-factory-test-');
+
+      try {
+        await gitInit(tmpDir);
+        const result = await gitRemoteAdd(tmpDir, 'origin', 'https://gitea.example.com/skills.git');
+        assert.strictEqual(result.success, true);
+      } finally {
+        await fs.rm(tmpDir, { recursive: true, force: true });
+      }
+    });
+  });
+
+  describe('gitPush', () => {
+    it('should fail gracefully when no remote configured', async () => {
+      const fs = await import('node:fs/promises');
+      const tmpDir = await fs.mkdtemp('/tmp/skills-factory-test-');
+
+      try {
+        await gitInit(tmpDir);
+        await fs.writeFile(`${tmpDir}/test.txt`, 'test');
+        await gitAdd(tmpDir, ['.']);
+        await gitCommit(tmpDir, 'Test');
+
+        // Push without remote should fail gracefully
+        const result = await gitPush(tmpDir, 'origin', 'main');
+        assert.strictEqual(result.success, false);
+        // Error message varies: "No such remote" or "failed to push"
+        assert.ok(result.message.length > 0);
+      } finally {
+        await fs.rm(tmpDir, { recursive: true, force: true });
+      }
+    });
+  });
+
+  describe('writeSkillToRepo', () => {
+    it('should write skill files to correct paths', async () => {
+      const fs = await import('node:fs/promises');
+      const tmpDir = await fs.mkdtemp('/tmp/skills-factory-test-');
+
+      try {
+        const repo = createRepository(tmpDir);
+        const record: SkillRecord = {
+          skillId: 'test-skill',
+          version: '1.0.0',
+          sourceUrl: 'https://github.com/a/b',
+          sourceCommit: 'abc123',
+          hash: 'sha256:deadbeef',
+          fetchedAt: '2026-03-05T10:00:00Z',
+          riskLevel: 'low',
+        };
+
+        const skillContent = '# Test Skill\n\nDescription here.';
+        const attestation = generateAttestation(record, 'reviewer', keyPair.privateKey);
+
+        await writeSkillToRepo(repo, {
+          skillId: 'test-skill',
+          version: '1.0.0',
+          skillContent,
+          metadata: { name: 'test-skill', description: 'A test skill' },
+          attestation,
+          signature: attestation.signature.signature,
+        });
+
+        // Verify files exist
+        const skillPath = repo.getSkillPath('test-skill', '1.0.0');
+        const skillFile = await fs.readFile(`${skillPath}/SKILL.md`, 'utf-8');
+        assert.strictEqual(skillFile, skillContent);
+
+        // Verify attestation
+        const attestationPath = repo.getAttestationPath('test-skill', '1.0.0');
+        const attestationData = JSON.parse(await fs.readFile(attestationPath, 'utf-8'));
+        assert.strictEqual(attestationData.skillId, 'test-skill');
+      } finally {
+        await fs.rm(tmpDir, { recursive: true, force: true });
+      }
+    });
+  });
+
+  describe('readSkillsIndex', () => {
+    it('should create empty index if not exists', async () => {
+      const fs = await import('node:fs/promises');
+      const tmpDir = await fs.mkdtemp('/tmp/skills-factory-test-');
+
+      try {
+        const repo = createRepository(tmpDir);
+        const index = await readSkillsIndex(repo);
+
+        assert.strictEqual(index.version, 1);
+        assert.deepStrictEqual(index.skills, []);
+      } finally {
+        await fs.rm(tmpDir, { recursive: true, force: true });
+      }
+    });
+
+    it('should read existing index', async () => {
+      const fs = await import('node:fs/promises');
+      const tmpDir = await fs.mkdtemp('/tmp/skills-factory-test-');
+
+      try {
+        const repo = createRepository(tmpDir);
+        const existingIndex: SkillsIndex = {
+          version: 1,
+          skills: [{ skillId: 'existing', version: '1.0.0', description: 'Test', riskLevel: 'low' }],
+        };
+
+        // Write existing index
+        await fs.mkdir(`${tmpDir}/index`, { recursive: true });
+        await fs.writeFile(repo.getIndexPath(), JSON.stringify(existingIndex));
+
+        const index = await readSkillsIndex(repo);
+        assert.strictEqual(index.skills.length, 1);
+        assert.strictEqual(index.skills[0].skillId, 'existing');
       } finally {
         await fs.rm(tmpDir, { recursive: true, force: true });
       }

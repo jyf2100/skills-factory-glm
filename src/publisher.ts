@@ -218,3 +218,102 @@ export function updateIndex(
     return { ...existingIndex, skills: [...existingIndex.skills, entry] };
   }
 }
+
+/**
+ * Add a remote to the repository
+ */
+export async function gitRemoteAdd(repoPath: string, name: string, url: string): Promise<GitResult> {
+  const result = await execGit(repoPath, ['remote', 'add', name, url]);
+  if (result.success) {
+    return { success: true, message: `Remote '${name}' added` };
+  }
+  // Handle "remote already exists" case
+  if (result.message.includes('already exists')) {
+    return { success: true, message: `Remote '${name}' already exists` };
+  }
+  return result;
+}
+
+/**
+ * Push to remote repository
+ */
+export async function gitPush(repoPath: string, remote: string = 'origin', branch: string = 'main'): Promise<GitResult> {
+  const result = await execGit(repoPath, ['push', '-u', remote, branch]);
+  if (result.success) {
+    return { success: true, message: `Pushed to ${remote}/${branch}` };
+  }
+  return result;
+}
+
+/**
+ * Read skills index from repository
+ */
+export async function readSkillsIndex(repo: RepositoryPaths): Promise<SkillsIndex> {
+  const fs = await import('node:fs/promises');
+  const indexPath = repo.getIndexPath();
+
+  try {
+    const content = await fs.readFile(indexPath, 'utf-8');
+    return JSON.parse(content);
+  } catch {
+    // Return empty index if file doesn't exist
+    return { version: 1, skills: [] };
+  }
+}
+
+/**
+ * Write skill files to repository
+ */
+export async function writeSkillToRepo(
+  repo: RepositoryPaths,
+  options: {
+    skillId: string;
+    version: string;
+    skillContent: string;
+    metadata: { name: string; description: string };
+    attestation: PublishedAttestation;
+    signature: string;
+  }
+): Promise<{ success: boolean; message: string }> {
+  const fs = await import('node:fs/promises');
+  const { skillId, version, skillContent, metadata, attestation, signature } = options;
+
+  try {
+    // Create directories
+    const skillDir = repo.getSkillPath(skillId, version);
+    const metadataDir = `${repo.basePath}/metadata/${skillId}`;
+    const attestationDir = `${repo.basePath}/attestations/${skillId}`;
+    const signatureDir = `${repo.basePath}/signatures/${skillId}`;
+    const indexDir = `${repo.basePath}/index`;
+
+    await fs.mkdir(skillDir, { recursive: true });
+    await fs.mkdir(metadataDir, { recursive: true });
+    await fs.mkdir(attestationDir, { recursive: true });
+    await fs.mkdir(signatureDir, { recursive: true });
+    await fs.mkdir(indexDir, { recursive: true });
+
+    // Write SKILL.md
+    await fs.writeFile(`${skillDir}/SKILL.md`, skillContent);
+
+    // Write metadata
+    const fullMetadata = {
+      skillId,
+      version,
+      name: metadata.name,
+      description: metadata.description,
+      publishedAt: new Date().toISOString(),
+    };
+    await fs.writeFile(repo.getMetadataPath(skillId, version), JSON.stringify(fullMetadata, null, 2));
+
+    // Write attestation
+    await fs.writeFile(repo.getAttestationPath(skillId, version), JSON.stringify(attestation, null, 2));
+
+    // Write signature
+    await fs.writeFile(repo.getSignaturePath(skillId, version), signature);
+
+    return { success: true, message: 'Skill files written' };
+  } catch (err) {
+    const error = err as Error;
+    return { success: false, message: error.message };
+  }
+}
