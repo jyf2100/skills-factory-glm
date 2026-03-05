@@ -11,6 +11,8 @@ import { handleHealthRoute } from './routes/health.js';
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
+import { handleIngestImport, handleIngestStatus, handleIngestList } from './routes/ingest.js';
+
 interface Route {
   method: string;
   pattern: RegExp;
@@ -21,6 +23,9 @@ const routes: Route[] = [
   { method: 'GET', pattern: /^\/api\/v1\/health$/, handler: handleHealthRoute },
   { method: 'GET', pattern: /^\/api\/v1\/skills$/, handler: handleSkillsRoute },
   { method: 'GET', pattern: /^\/api\/v1\/skills\/([^/]+)$/, handler: handleSkillsRoute },
+  { method: 'POST', pattern: /^\/api\/v1\/ingest\/import$/, handler: handleIngestImport },
+  { method: 'GET', pattern: /^\/api\/v1\/ingest\/([^/]+)$/, handler: handleIngestStatus },
+  { method: 'GET', pattern: /^\/api\/v1\/ingest$/, handler: handleIngestList },
 ];
 
 function parseUrl(req: http.IncomingMessage): { pathname: string; query: URLSearchParams } {
@@ -41,7 +46,7 @@ async function handleRequest(
 
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (method === 'OPTIONS') {

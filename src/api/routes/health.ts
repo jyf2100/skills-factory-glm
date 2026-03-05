@@ -2,7 +2,8 @@ import http from 'node:http';
 
 export async function handleHealthRoute(
   _req: http.IncomingMessage,
-  res: http.ServerResponse
+  res: http.ServerResponse,
+  _params: string[]
 ): Promise<void> {
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({
