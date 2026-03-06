@@ -7,7 +7,6 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 COPY tsconfig*.json ./
-COPY tsconfig.json ./
 
 # Install dependencies
 RUN npm ci --only=production
@@ -33,7 +32,6 @@ RUN npm ci
 
 # Copy source and build
 COPY src/ ./src/
-COPY public/ ./public/ 2>/dev/null || true
 RUN npm run build:web
 
 # Stage 3: Production image
@@ -52,8 +50,10 @@ COPY --from=cli-builder /app/dist ./dist
 
 # Copy Web build
 COPY --from=web-builder /app/.next ./.next
-COPY --from=web-builder /app/public ./public
 COPY --from=web-builder /app/next.config.mjs ./
+
+# Create public directory (Next.js expects it)
+RUN mkdir -p ./public
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
@@ -65,12 +65,11 @@ USER nodejs
 
 # Expose ports
 # 3000 - Web interface (Next.js)
-# 3001 - API server (Express)
-EXPOSE 3000 3001
+EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+    CMD node -e "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start both services
-CMD ["sh", "-c", "npm run web & npm run api"]
+# Start web service
+CMD ["node", "dist/bin/skills-factory.js", "api"]
