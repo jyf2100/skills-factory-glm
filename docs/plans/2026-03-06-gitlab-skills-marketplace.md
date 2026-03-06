@@ -97,12 +97,10 @@ GitHub 技能仓库 → 同步到 → 本地 GitLab → Web 界面展示/管理
 
 ---
 
-### Task 5: 前端 - 技能详情页
+### Task 5: 前端 - 技能详情页 ✅ 已完成
 
 **Files**:
 - `src/app/skills/[id]/page.tsx` (新建)
-- `src/components/SkillDetail.tsx` (新建)
-- `src/components/InstallButton.tsx` (新建)
 
 **Steps**:
 1. 技能详情页面布局
@@ -110,7 +108,7 @@ GitHub 技能仓库 → 同步到 → 本地 GitLab → Web 界面展示/管理
 3. 安装按钮（复制命令：`npx skills-factory install gitlab-owner/repo`）
 4. 统计信息展示
 
-**Expected Result**: 可查看技能详情并复制安装命令
+**Result**: ✅ 可查看技能详情并复制安装命令
 
 ---
 
