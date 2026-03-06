@@ -4,6 +4,10 @@ node_modules/
 # Build output
 dist/
 
+# Next.js
+.next/
+next-env.d.ts
+
 # IDE
 .idea/
 .vscode/
