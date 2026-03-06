@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readSkillsIndex, updateIndex } from '../../publisher';
-import { gitInit, gitAdd, gitCommit, gitPush } from '../../publisher';
+import { readSkillsIndex, updateIndex } from '@/publisher';
+import { gitInit, gitAdd, gitCommit, gitPush } from '@/publisher';
 
 /**
  * POST /api/admin/sync
@@ -30,9 +30,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // For this implementation, we'll use the existing local lockfile as source
+    // For this implementation, we'll use existing local lockfile as source
     // In a full implementation, you would fetch from GitHub first
-    const { readLockfile } = await import('../../lockfile.js');
+    const { readLockfile } = await import('@/lockfile.js');
     const lockfile = await readLockfile(process.cwd());
 
     const skills = Object.keys(lockfile.skills);
@@ -44,9 +44,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    // Initialize git if needed (in a real scenario, this would be the GitLab repo)
+    // Initialize git if needed (in a real scenario, this would be GitLab repo)
     // For now, we'll return success without actual git operations
-    // since we don't have access to the actual GitLab repo path
+    // since we don't have access to actual GitLab repo path
 
     return NextResponse.json({
       synced: skills.length,

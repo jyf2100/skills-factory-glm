@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createGitLabClient, type GitLabProject } from '../../gitlab';
+import { createGitLabClient, type GitLabProject } from '@/gitlab';
 
 /**
  * GET /api/leaderboard

@@ -85,7 +85,6 @@ volumes:
     driver: local
   gitlab-logs:
     driver: local
-  driver: local
   gitlab-data:
     driver: local
 

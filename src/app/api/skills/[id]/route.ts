@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createGitLabClient } from '../../../gitlab';
+import { createGitLabClient } from '@/gitlab';
 
 /**
  * GET /api/skills/:id
