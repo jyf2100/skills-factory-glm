@@ -9,8 +9,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc && next build",
-    "build:cli": "tsc",
+    "build": "tsc --project tsconfig.cli.json && next build",
+    "build:cli": "tsc --project tsconfig.cli.json",
     "build:web": "next build",
     "dev": "tsc --watch",
     "dev:web": "next dev",

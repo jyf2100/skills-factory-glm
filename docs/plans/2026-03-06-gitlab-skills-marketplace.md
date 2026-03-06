@@ -22,14 +22,14 @@ GitHub 技能仓库 → 同步到 → 本地 GitLab → Web 界面展示/管理
 
 ## 任务拆解
 
-### Task 1: 环境配置与基础架构
+### Task 1: 环境配置与基础架构 ✅ 已完成
 
 **Files**:
 - `package.json` (修改)
-- `next.config.js` (新建)
+- `next.config.mjs` (新建)
 - `tsconfig.json` (修改)
 - `.env.example` (修改)
-- `postcss.config.js` (新建)
+- `postcss.config.cjs` (新建)
 - `tailwind.config.ts` (新建)
 
 **Steps**:
@@ -38,15 +38,16 @@ GitHub 技能仓库 → 同步到 → 本地 GitLab → Web 界面展示/管理
 3. 添加环境变量（GitLab URL、Token）
 4. 配置 Tailwind CSS
 
-**Expected Result**: Next.js 项目可启动，环境变量可读取，Tailwind CSS 工作
+**Result**: ✅ Next.js 项目可启动，环境变量可读取，Tailwind CSS 工作
 
 ---
 
-### Task 2: GitLab API 客户端
+### Task 2: GitLab API 客户端 ✅ 已完成
 
 **Files**:
 - `src/gitlab.ts` (新建)
 - `src/gitlab.test.ts` (新建)
+- `tsconfig.cli.json` (新建)
 
 **Steps**:
 1. 创建 GitLabClient 类
@@ -54,7 +55,7 @@ GitHub 技能仓库 → 同步到 → 本地 GitLab → Web 界面展示/管理
 3. 添加认证（Personal Access Token）
 4. 编写测试
 
-**Expected Result**: 可从本地 GitLab 读取项目和文件
+**Result**: ✅ 可从本地 GitLab 读取项目和文件，所有测试通过 (7/7)
 
 ---
 
