@@ -112,6 +112,22 @@ export async function computeFileHash(filePath: string): Promise<string> {
 }
 
 /**
+ * Compute hash for a directory (all files combined)
+ */
+export async function computeDirectoryHash(dirPath: string): Promise<string> {
+  const files = getAllFiles(dirPath, dirPath);
+  const hashContents: string[] = [];
+
+  for (const file of files.sort()) {
+    const filePath = path.join(dirPath, file);
+    const content = await fs.promises.readFile(filePath);
+    hashContents.push(`${file}:${crypto.createHash('sha256').update(content).digest('hex')}`);
+  }
+
+  return crypto.createHash('sha256').update(hashContents.join('\n')).digest('hex');
+}
+
+/**
  * Detect security issues in content
  */
 export function detectSecurityIssues(

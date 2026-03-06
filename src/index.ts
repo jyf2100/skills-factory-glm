@@ -20,7 +20,7 @@ import * as path from 'node:path';
 import { execSync } from 'node:child_process';
 import { readLockfile, findSkills, listSkills, addSkill, writeLockfile, removeSkill } from './lockfile.js';
 import { parseGitHubSource, downloadSkill } from './github.js';
-import { auditSkill, computeFileHash } from './security.js';
+import { auditSkill, computeDirectoryHash } from './security.js';
 import { readRegistry, searchRegistry, listAllSkills } from './registry.js';
 
 interface CliArgs {
@@ -221,7 +221,7 @@ async function handleInstall(sourceArg: string): Promise<void> {
 
   // Add to lockfile
   const lockfile = await readLockfile(process.cwd());
-  const computedHash = await computeFileHash(skillDir);
+  const computedHash = await computeDirectoryHash(skillDir);
 
   const updatedLockfile = addSkill(lockfile, result.skillName, {
     source: `${source.owner}/${source.repo}`,
@@ -392,7 +392,7 @@ async function handleUpdate(skillName: string): Promise<void> {
   const updatedLockfile = addSkill(lockfile, skillName, {
     source: entry.source,
     sourceType: entry.sourceType,
-    computedHash: await computeFileHash(skillDir),
+    computedHash: await computeDirectoryHash(skillDir),
   });
 
   await writeLockfile(process.cwd(), updatedLockfile);
@@ -440,7 +440,7 @@ async function handleVerify(skillName: string): Promise<void> {
   }
 
   // Compute current hash
-  const currentHash = await computeFileHash(skillDir);
+  const currentHash = await computeDirectoryHash(skillDir);
 
   console.log(`Stored hash:   ${entry.computedHash}`);
   console.log(`Current hash:  ${currentHash}`);
