@@ -112,12 +112,10 @@ GitHub 技能仓库 → 同步到 → 本地 GitLab → Web 界面展示/管理
 
 ---
 
-### Task 6: 前端 - 排行榜页面
+### Task 6: 前端 - 排行榜页面 ✅ 已完成
 
 **Files**:
 - `src/app/leaderboard/page.tsx` (新建)
-- `src/components/Leaderboard.tsx` (新建)
-- `src/components/TabSelector.tsx` (新建)
 
 **Steps**:
 1. 排行榜页面布局
@@ -125,7 +123,7 @@ GitHub 技能仓库 → 同步到 → 本地 GitLab → Web 界面展示/管理
 3. 技能排名展示
 4. 与 API 集成
 
-**Expected Result**: 可查看技能排行榜
+**Result**: ✅ 可查看技能排行榜
 
 ---
 
