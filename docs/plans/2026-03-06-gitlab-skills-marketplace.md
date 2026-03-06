@@ -59,13 +59,14 @@ GitHub 技能仓库 → 同步到 → 本地 GitLab → Web 界面展示/管理
 
 ---
 
-### Task 3: API 端点（GitLab 数据）
+### Task 3: API 端点（GitLab 数据）✅ 已完成
 
 **Files**:
 - `src/app/api/skills/route.ts` (新建)
 - `src/app/api/skills/[id]/route.ts` (新建)
 - `src/app/api/search/route.ts` (新建)
 - `src/app/api/leaderboard/route.ts` (新建)
+- `src/api/gitlab.test.ts` (新建)
 
 **Steps**:
 1. 技能列表 API（从 GitLab 读取）
@@ -73,7 +74,7 @@ GitHub 技能仓库 → 同步到 → 本地 GitLab → Web 界面展示/管理
 3. 搜索 API（关键词搜索）
 4. 排行榜 API（热门、趋势）
 
-**Expected Result**: API 可返回 GitLab 中的技能数据
+**Result**: ✅ API 可返回 GitLab 中的技能数据，所有测试通过 (9/9)
 
 ---
 
