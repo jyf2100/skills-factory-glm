@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # Skills Factory Web + API
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: skills-factory
+    restart: unless-stopped
+    ports:
+      - "3000:3000"  # Web interface (Next.js)
+      - "3001:3001"  # API server
+    environment:
+      # Web service
+      - NODE_ENV=production
+      - PORT=3000
+
+      # GitLab configuration (skills data source)
+      - GITLAB_URL=${GITLAB_URL:-http://gitlab:80}
+      - GITLAB_TOKEN=${GITLAB_TOKEN:-}
+      - GITLAB_SKILLS_PROJECT=${GITLAB_SKILLS_PROJECT:-skills/skills}
+
+      # GitHub configuration (source for sync)
+      - GITHUB_URL=${GITHUB_URL:-}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+
+      # Gitea configuration (remote repository)
+      - GITEA_URL=${GITEA_URL:-}
+      - GITEA_TOKEN=${GITEA_TOKEN:-}
+    volumes:
+      # Skills storage
+      - skills-data:/app/skills
+      - agents-data:/app/.agents/skills
+      # Lock files
+      - lockfile-data:/app/skills-lock.json
+    networks:
+      - skills-network
+    depends_on:
+      - gitlab
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/v1/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # GitLab (skills data source)
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: skills-gitlab
+    restart: unless-stopped
+    hostname: 'gitlab'
+    ports:
+      - "8080:80"
+      - "2222:22"
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab'
+        gitlab_rails['initial_root_password'] = '${GITLAB_ROOT_PASSWORD:-admin123}'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+    volumes:
+      - gitlab-config:/etc/gitlab
+      - gitlab-logs:/var/log/gitlab
+      - gitlab-data:/var/opt/gitlab
+    shm_size: '256m'
+    networks:
+      - skills-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/-/readiness"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 300s
+
+volumes:
+  skills-data:
+    driver: local
+  agents-data:
+    driver: local
+  lockfile-data:
+    driver: local
+  gitlab-config:
+    driver: local
+  gitlab-logs:
+    driver: local
+  driver: local
+  gitlab-data:
+    driver: local
+
+networks:
+  skills-network:
+    driver: bridge
