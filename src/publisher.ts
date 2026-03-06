@@ -6,6 +6,7 @@
 
 import { spawn } from 'node:child_process';
 import { createAttestation, type SkillAttestation } from './signing.js';
+import { getConfig, getGiteaAuth } from './config.js';
 
 /**
  * Git operation result
@@ -236,8 +237,32 @@ export async function gitRemoteAdd(repoPath: string, name: string, url: string):
 
 /**
  * Push to remote repository
+ *
+ * If Gitea is configured via environment variables, it will add the remote
+ * and push with authentication. Otherwise, it will attempt a standard push.
  */
 export async function gitPush(repoPath: string, remote: string = 'origin', branch: string = 'main'): Promise<GitResult> {
+  const config = getConfig();
+
+  // If Gitea is configured, set up the remote with authentication
+  if (config.hasRemote && config.isValid) {
+    const auth = getGiteaAuth();
+    if (auth) {
+      // Build URL with authentication: https://user:token@host/path.git
+      const url = new URL(config.giteaUrl);
+      const authUrl = `${url.protocol}//${auth}${url.pathname}`;
+
+      // Add or update remote with auth URL
+      await gitRemoteAdd(repoPath, remote, authUrl);
+
+      // Set up credential helper to use the URL with embedded auth
+      await execGit(repoPath, ['config', 'credential.helper', 'store']);
+    } else {
+      // No token available, add remote without auth
+      await gitRemoteAdd(repoPath, remote, config.giteaUrl);
+    }
+  }
+
   const result = await execGit(repoPath, ['push', '-u', remote, branch]);
   if (result.success) {
     return { success: true, message: `Pushed to ${remote}/${branch}` };

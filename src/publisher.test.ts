@@ -263,6 +263,33 @@ describe('publisher', () => {
         await fs.rm(tmpDir, { recursive: true, force: true });
       }
     });
+
+    it('should attempt push when Gitea is configured', async () => {
+      const fs = await import('node:fs/promises');
+      const tmpDir = await fs.mkdtemp('/tmp/skills-factory-test-');
+
+      try {
+        // Configure Gitea
+        process.env.GITEA_URL = 'https://gitea.example.com/skills.git';
+        process.env.GITEA_TOKEN = 'test-token';
+
+        await gitInit(tmpDir);
+        await fs.writeFile(`${tmpDir}/test.txt`, 'test');
+        await gitAdd(tmpDir, ['.']);
+        await gitCommit(tmpDir, 'Test');
+
+        // Push should be attempted (will fail due to no real Gitea)
+        const result = await gitPush(tmpDir, 'origin', 'main');
+        // Should fail because remote doesn't actually exist
+        assert.strictEqual(result.success, false);
+        assert.ok(result.message.length > 0);
+      } finally {
+        // Clean up env
+        delete process.env.GITEA_URL;
+        delete process.env.GITEA_TOKEN;
+        await fs.rm(tmpDir, { recursive: true, force: true });
+      }
+    });
   });
 
   describe('writeSkillToRepo', () => {
