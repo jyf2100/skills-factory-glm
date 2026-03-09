@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "openclaw-config": {
+      "source": "adisinghstudent/easyclaw",
+      "sourceType": "github",
+      "computedHash": "8511022469f59d2540ba78ee7bf59b318a7a992ea2dd70caa57bd7d18ddb679c"
+    },
+    "openclaw-setup": {
+      "source": "iofficeai/aionui",
+      "sourceType": "github",
+      "computedHash": "944db71f4cf7c4b42c6afa38d606160d713f4b2bf2accce5b9207e330e1e3928"
+    }
+  }
+}

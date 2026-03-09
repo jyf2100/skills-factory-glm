@@ -1,0 +1,268 @@
+[     122ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/:0
+[     500ms] Error: Module not found: Can't resolve '../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found
+
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at getNotFoundError (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/parseNotFoundError.js:140:16)
+    at async getModuleBuildError (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/webpackModuleError.js:103:27)
+    at async (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:29:49)
+    at async (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:27:21)
+[     502ms] [ERROR] ./src/app/api/leaderboard/route.ts:2:1
+Module not found: Can't resolve '../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[     507ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/favicon.ico:0
+[   33982ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/_next/static/webpack/3adc32b818ff1f20.webpack.hot-update.json:0
+[   33982ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/client/dev/hot-reloader/pages/hot-reloader-pages.js:347
+[   34309ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/_next/static/webpack/3adc32b818ff1f20.webpack.hot-update.json:0
+[   34309ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/client/dev/hot-reloader/pages/hot-reloader-pages.js:347
+[   35116ms] [ERROR] ./src/app/api/leaderboard/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   35220ms] [ERROR] ./src/app/api/leaderboard/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   35340ms] [ERROR] ./src/app/api/leaderboard/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   35377ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/skills?per_page=20:0
+[   35377ms] [ERROR] Error fetching skills: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   84734ms] [ERROR] ./src/app/api/leaderboard/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   84734ms] [ERROR] ./src/app/api/skills/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/skills
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/next-devtools/userspace/app/errors/intercept-console-error.js:56
+[   84757ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/?_rsc=fsnpp:0
+[   84966ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/:0
+[   85149ms] Error: Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found
+
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at getNotFoundError (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/parseNotFoundError.js:140:16)
+    at async getModuleBuildError (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/webpackModuleError.js:103:27)
+    at async (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:29:49)
+    at async (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:27:21)
+[   85150ms] [ERROR] ./src/app/api/leaderboard/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   85150ms] [ERROR] ./src/app/api/skills/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/skills
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[  140645ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/:0
+[  140917ms] Error: Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found
+
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at getNotFoundError (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/parseNotFoundError.js:140:16)
+    at async getModuleBuildError (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/webpackModuleError.js:103:27)
+    at async (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:29:49)
+    at async (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:27:21)
+[  140914ms] [ERROR] ./src/app/api/leaderboard/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[  140914ms] [ERROR] ./src/app/api/skills/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/skills
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[  140933ms] [ERROR] ./src/app/api/leaderboard/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[  140933ms] [ERROR] ./src/app/api/skills/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/skills
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[  152903ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/:0
+[  153128ms] Error: Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found
+
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at getNotFoundError (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/parseNotFoundError.js:140:16)
+    at async getModuleBuildError (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/webpackModuleError.js:103:27)
+    at async (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:29:49)
+    at async (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:27:21)
+[  153128ms] [ERROR] ./src/app/api/leaderboard/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[  153128ms] [ERROR] ./src/app/api/skills/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/skills
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[  153144ms] [ERROR] ./src/app/api/leaderboard/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[  153144ms] [ERROR] ./src/app/api/skills/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/skills
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[  206712ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/:0
+[  206921ms] Error: Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found
+
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at getNotFoundError (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/parseNotFoundError.js:140:16)
+    at async getModuleBuildError (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/webpackModuleError.js:103:27)
+    at async (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:29:49)
+    at async (file:///Volumes/work/workspace/skills-factory/node_modules/next/dist/build/webpack/plugins/wellknown-errors-plugin/index.js:27:21)
+[  206922ms] [ERROR] ./src/app/api/leaderboard/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/leaderboard
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[  206922ms] [ERROR] ./src/app/api/skills/route.ts:2:1
+Module not found: Can't resolve '../../../../gitlab'
+  1 | import { NextRequest, NextResponse } from 'next/server';
+> 2 | import { createGitLabClient, type GitLabProject } from '../../../../gitlab';
+    | ^
+  3 |
+  4 | /**
+  5 |  * GET /api/skills
+
+https://nextjs.org/docs/messages/module-not-found @ webpack-internal:///(pages-dir-browser)/./node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76

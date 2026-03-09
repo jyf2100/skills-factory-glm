@@ -1,0 +1,55 @@
+{
+  "name": "skills-factory",
+  "version": "0.1.0",
+  "description": "Internal skills marketplace - download, audit, and manage AI agent skills",
+  "type": "module",
+  "bin": {
+    "skills-factory": "./dist/bin/skills-factory.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --project tsconfig.cli.json && next build",
+    "build:cli": "tsc --project tsconfig.cli.json",
+    "build:web": "next build",
+    "dev": "tsc --watch",
+    "dev:web": "next dev",
+    "test": "node --test dist/**/*.test.js",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/bin/skills-factory.js",
+    "api": "node dist/api/server.js",
+    "web": "next start"
+  },
+  "keywords": [
+    "skills",
+    "ai",
+    "agent",
+    "marketplace",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "next": "^15.0.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.1",
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "skills-lock.json"
+  ]
+}

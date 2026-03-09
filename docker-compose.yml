@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Skills Factory Web + API
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: skills-factory
+    restart: unless-stopped
+    ports:
+      - "3000:3000"  # Web interface (Next.js)
+    environment:
+      # Web service
+      - NODE_ENV=production
+
+      # GitLab configuration (skills data source)
+      - GITLAB_URL=${GITLAB_URL:-}
+      - GITLAB_TOKEN=${GITLAB_TOKEN:-}
+      - GITLAB_SKILLS_PROJECT=${GITLAB_SKILLS_PROJECT:-}
+
+      # GitHub configuration (source for sync)
+      - GITHUB_URL=${GITHUB_URL:-}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+
+      # Gitea configuration (remote repository)
+      - GITEA_URL=${GITEA_URL:-}
+      - GITEA_TOKEN=${GITEA_TOKEN:-}
+    volumes:
+      # Skills storage
+      - skills-data:/app/skills
+      - agents-data:/app/.agents/skills
+      # Lock files
+      - lockfile-data:/app/skills-lock.json
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  skills-data:
+    driver: local
+  agents-data:
+    driver: local
+  lockfile-data:
+    driver: local

@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Next.js
+.next/
+next-env.d.ts
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Local env
+.env
+.env.local
+
+# Lock files (keep skills-lock.json)
+package-lock.json
+
+# Playwright logs
+.playwright-mcp/
+.playwright-mcp-console-*.log
